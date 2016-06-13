@@ -1,5 +1,4 @@
-package pearls
-
+package pearls.naive
 
 trait SemiRing[T] {
   def zero:T
@@ -28,7 +27,7 @@ case class Sym[T](char:Char => T) extends Regex[T] {
 
 }
 object Sym {
-  def sym[T](char:Char)(implicit ops:SemiRing[T]) = Sym ({ x:Char =>
+  def apply[T](char:Char)(implicit ops:SemiRing[T]):Sym[T] = Sym ({ x:Char =>
     if(x == char) ops.one else ops.zero
   })
 }
@@ -71,9 +70,37 @@ object SemiRing {
 
 object Main {
   def main(args:Array[String]): Unit = {
-    import Sym._
     import SemiRing.wholeNumberOps
+    val re =
+      Seq(
+        Rep(
+          Seq(
+            Seq(
+              Seq(
+                Rep(
+                  Alt(Sym('a'), Sym('b'))),
+                Sym('c')),
+              Rep(
+                Alt(Sym('a'), Sym('b')))),
+            Sym('c'))),
+        Rep(
+          Alt(Sym('a'), Sym('b'))))
 
-    println(Alt(sym('b'), Rep(sym('b'))).matches("bb"))
+    val re2 = Seq(Rep(Alt(Sym('a'),Sym('b'))), Sym('c'))
+    val re3 = Rep(Seq(re2, re2))
+    val fin = Seq(re3, Rep(Alt(Sym('a'),Sym('b'))))
+
+    List(
+      "cc",
+      "abccaaa",
+      "acccccc",
+      "acaca",
+      "acacac"
+    ).foreach { str =>
+      println(str, fin.matches(str))
+
+    }
+
+//    println(Alt(sym('b'), Rep(sym('b'))).matches("b"))
   }
 }
